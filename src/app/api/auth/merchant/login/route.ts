@@ -34,7 +34,7 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    if (!user || user.role !== UserRole.MERCHANT) {
+    if (!user || user.role !== UserRole.MERCHANT || !user.passwordHash) {
       return NextResponse.json(
         {
           success: false,
