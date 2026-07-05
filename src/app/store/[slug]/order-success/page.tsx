@@ -1,0 +1,2 @@
+import TemplatePageClient from "@/storefront/templates/_shared/TemplatePageClient";
+export default function StorefrontOrderSuccessPage() { return <TemplatePageClient page="orderSuccess" />; }
