@@ -160,6 +160,14 @@ function asArray(value: unknown): unknown[] {
   return Array.isArray(value) ? value : [];
 }
 
+function safeArray(value: unknown): unknown[] {
+  return asArray(value);
+}
+
+function normalizeNullableText(value: unknown) {
+  return nullableText(value);
+}
+
 function hasOwn(source: Record<string, unknown>, key: string) {
   return Object.prototype.hasOwnProperty.call(source, key);
 }
@@ -816,9 +824,6 @@ function buildStoreUpdateData(
     storeData.websiteUrl = nullableText(websiteValue);
   }
 
-  // Important:
-  // Do not save color or font customization here.
-  // Template colors and typography are controlled inside each template folder.
   delete storeData.primaryColor;
   delete storeData.accentColor;
   delete storeData.secondaryColor;
@@ -988,7 +993,6 @@ function buildHomepageData(source: Record<string, unknown>) {
 
   return data;
 }
-
 
 function slugify(value: unknown, fallback = "item") {
   const slug = String(value || fallback)
@@ -1481,15 +1485,15 @@ export async function PATCH(request: NextRequest) {
           }
         }
 
-        if (brandsProvided && tx.brand) {
-          await tx.brand.deleteMany({
+        if (brandsProvided && (tx as any).brand) {
+          await (tx as any).brand.deleteMany({
             where: {
               storeId: existingStore.id,
             },
           });
 
           if (brands.length > 0) {
-            await tx.brand.createMany({
+            await (tx as any).brand.createMany({
               data: brands.map((item) => ({
                 storeId: existingStore.id,
                 name: item.name || "Brand",
@@ -1501,15 +1505,15 @@ export async function PATCH(request: NextRequest) {
           }
         }
 
-        if (blogPostsProvided && tx.storeBlogPost) {
-          await tx.storeBlogPost.deleteMany({
+        if (blogPostsProvided && (tx as any).storeBlogPost) {
+          await (tx as any).storeBlogPost.deleteMany({
             where: {
               storeId: existingStore.id,
             },
           });
 
           if (blogPosts.length > 0) {
-            await tx.storeBlogPost.createMany({
+            await (tx as any).storeBlogPost.createMany({
               data: blogPosts.map((item) => ({
                 storeId: existingStore.id,
                 titleAr: item.titleAr,
@@ -1551,7 +1555,11 @@ export async function PATCH(request: NextRequest) {
       __dashboardSavedAt: new Date().toISOString(),
     };
 
-    await updateTemplateConfigSettingsFallback(existingStore.id, existingStore, dashboardFallbackPayload);
+    await updateTemplateConfigSettingsFallback(
+      existingStore.id,
+      existingStore,
+      dashboardFallbackPayload,
+    );
 
     const updatedStore = await prisma.store.findUnique({
       where: {
