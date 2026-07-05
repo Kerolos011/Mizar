@@ -20,6 +20,54 @@ async function getMerchantStoreIds(userId: string) {
   return stores.map((store) => store.id);
 }
 
+type CustomerListItem = {
+  id: string;
+  name: string;
+  phone: string;
+  city: string;
+  address: string;
+  notes?: string | null;
+  createdAt: Date;
+  store: {
+    id: string;
+    name: string;
+    slug: string;
+  };
+  user?: {
+    id: string;
+    name: string;
+    email: string;
+    phone?: string | null;
+    role: string;
+  } | null;
+  orders: {
+    id: string;
+    total: number;
+    status: string;
+    createdAt: Date;
+  }[];
+};
+
+function normalizeStore(store: any) {
+  return {
+    id: String(store?.id || ""),
+    name: String(store?.name || ""),
+    slug: String(store?.slug || ""),
+  };
+}
+
+function normalizeUser(user: any) {
+  if (!user) return null;
+
+  return {
+    id: String(user.id || ""),
+    name: String(user.name || ""),
+    email: String(user.email || ""),
+    phone: user.phone || null,
+    role: String(user.role || ""),
+  };
+}
+
 export async function GET(request: NextRequest) {
   try {
     const session = await getSessionFromRequest(request);
@@ -34,7 +82,7 @@ export async function GET(request: NextRequest) {
           message: "Merchant login is required",
           customers: [],
         },
-        { status: 401 }
+        { status: 401 },
       );
     }
 
@@ -62,7 +110,7 @@ export async function GET(request: NextRequest) {
               message: "You are not allowed to view customers for this store",
               customers: [],
             },
-            { status: 403 }
+            { status: 403 },
           );
         }
 
@@ -147,36 +195,7 @@ export async function GET(request: NextRequest) {
       }),
     ]);
 
-    const customersMap = new Map<
-      string,
-      {
-        id: string;
-        name: string;
-        phone: string;
-        city: string;
-        address: string;
-        notes?: string | null;
-        createdAt: Date;
-        store: {
-          id: string;
-          name: string;
-          slug: string;
-        };
-        user?: {
-          id: string;
-          name: string;
-          email: string;
-          phone?: string | null;
-          role: string;
-        } | null;
-        orders: {
-          id: string;
-          total: number;
-          status: string;
-          createdAt: Date;
-        }[];
-      }
-    >();
+    const customersMap = new Map<string, CustomerListItem>();
 
     for (const user of registeredUsers) {
       if (!user.customerStore) continue;
@@ -185,20 +204,14 @@ export async function GET(request: NextRequest) {
 
       customersMap.set(key, {
         id: user.id,
-        name: user.name,
-        phone: user.phone || "",
+        name: user.name ?? "",
+        phone: user.phone ?? "",
         city: "",
         address: "",
         notes: null,
         createdAt: user.createdAt,
-        store: user.customerStore,
-        user: {
-          id: user.id,
-          name: user.name,
-          email: user.email,
-          phone: user.phone,
-          role: user.role,
-        },
+        store: normalizeStore(user.customerStore),
+        user: normalizeUser(user),
         orders: [],
       });
     }
@@ -210,23 +223,25 @@ export async function GET(request: NextRequest) {
 
       const key = customer.userId
         ? `user:${customer.userId}`
-        : `phone:${order.storeId}:${customer.phone}`;
+        : `phone:${order.storeId}:${customer.phone ?? ""}`;
 
       const existingCustomer = customersMap.get(key);
+      const customerUser = normalizeUser(customer.user);
+      const orderStore = normalizeStore(order.store);
 
       if (existingCustomer) {
-        existingCustomer.name = customer.name || existingCustomer.name;
-        existingCustomer.phone = customer.phone || existingCustomer.phone;
-        existingCustomer.city = customer.city || existingCustomer.city;
-        existingCustomer.address = customer.address || existingCustomer.address;
-        existingCustomer.notes = customer.notes || existingCustomer.notes;
-        existingCustomer.store = order.store;
-        existingCustomer.user = customer.user || existingCustomer.user || null;
+        existingCustomer.name = customer.name ?? existingCustomer.name;
+        existingCustomer.phone = customer.phone ?? existingCustomer.phone;
+        existingCustomer.city = customer.city ?? existingCustomer.city;
+        existingCustomer.address = customer.address ?? existingCustomer.address;
+        existingCustomer.notes = customer.notes ?? existingCustomer.notes;
+        existingCustomer.store = orderStore;
+        existingCustomer.user = customerUser || existingCustomer.user || null;
 
         existingCustomer.orders.push({
           id: order.id,
           total: Number(order.total || 0),
-          status: order.status,
+          status: String(order.status || ""),
           createdAt: order.createdAt,
         });
 
@@ -234,19 +249,19 @@ export async function GET(request: NextRequest) {
       } else {
         customersMap.set(key, {
           id: customer.id,
-          name: customer.name,
-          phone: customer.phone,
-          city: customer.city,
-          address: customer.address,
-          notes: customer.notes,
+          name: customer.name ?? "",
+          phone: customer.phone ?? "",
+          city: customer.city ?? "",
+          address: customer.address ?? "",
+          notes: customer.notes ?? null,
           createdAt: customer.createdAt,
-          store: order.store,
-          user: customer.user || null,
+          store: orderStore,
+          user: customerUser,
           orders: [
             {
               id: order.id,
               total: Number(order.total || 0),
-              status: order.status,
+              status: String(order.status || ""),
               createdAt: order.createdAt,
             },
           ],
@@ -304,7 +319,7 @@ export async function GET(request: NextRequest) {
           error instanceof Error ? error.message : "Failed to load customers",
         customers: [],
       },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
