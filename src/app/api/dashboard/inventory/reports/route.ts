@@ -64,7 +64,7 @@ function getVariantImage(product: any, variant: any) {
 
 async function getCurrentMerchantStore(
   request: NextRequest,
-  storeIdFromQuery?: string | null
+  storeIdFromQuery?: string | null,
 ) {
   const session = await getSessionFromRequest(request);
 
@@ -78,7 +78,10 @@ async function getCurrentMerchantStore(
     };
   }
 
-  if (session.role !== UserRole.MERCHANT && session.role !== UserRole.SUPER_ADMIN) {
+  if (
+    session.role !== UserRole.MERCHANT &&
+    session.role !== UserRole.SUPER_ADMIN
+  ) {
     return {
       ok: false,
       status: 403,
@@ -128,7 +131,7 @@ function addToMap<T extends Record<string, any>>(
   map: Map<string, T>,
   key: string,
   initialValue: T,
-  updater: (current: T) => T
+  updater: (current: T) => T,
 ) {
   const current = map.get(key) || initialValue;
   map.set(key, updater(current));
@@ -153,7 +156,7 @@ export async function GET(request: NextRequest) {
               ? "/merchant/login?next=/dashboard/inventory/reports"
               : "/merchant/welcome",
         },
-        { status: ownership.status }
+        { status: ownership.status },
       );
     }
 
@@ -195,7 +198,7 @@ export async function GET(request: NextRequest) {
       },
     });
 
-    const inventoryRows = products.flatMap((product) => {
+    const inventoryRows = products.flatMap((product): any[] => {
       const productImage = getCoverImage(product);
 
       if (product.productVariants.length > 0) {
@@ -343,16 +346,19 @@ export async function GET(request: NextRequest) {
 
     for (const item of orderItems) {
       const quantity = getNumber(item.quantity, 0);
-      const revenue = item.total !== null && item.total !== undefined
-        ? getNumber(item.total, 0)
-        : getNumber(item.price, 0) * quantity;
+      const revenue =
+        item.total !== null && item.total !== undefined
+          ? getNumber(item.total, 0)
+          : getNumber(item.price, 0) * quantity;
 
       const unitCost =
         item.unitCost !== null && item.unitCost !== undefined
           ? getNumber(item.unitCost, 0)
-          : item.variant?.costPrice !== null && item.variant?.costPrice !== undefined
+          : item.variant?.costPrice !== null &&
+              item.variant?.costPrice !== undefined
             ? getNumber(item.variant.costPrice, 0)
-            : item.product.costPrice !== null && item.product.costPrice !== undefined
+            : item.product.costPrice !== null &&
+                item.product.costPrice !== undefined
               ? getNumber(item.product.costPrice, 0)
               : null;
 
@@ -383,7 +389,7 @@ export async function GET(request: NextRequest) {
           revenue: current.revenue + revenue,
           profit: current.profit + profit,
           orderLines: current.orderLines + 1,
-        })
+        }),
       );
 
       if (item.variantId && item.variant) {
@@ -408,7 +414,7 @@ export async function GET(request: NextRequest) {
             revenue: current.revenue + revenue,
             profit: current.profit + profit,
             orderLines: current.orderLines + 1,
-          })
+          }),
         );
       }
 
@@ -428,7 +434,7 @@ export async function GET(request: NextRequest) {
           revenue: current.revenue + revenue,
           profit: current.profit + profit,
           orderLines: current.orderLines + 1,
-        })
+        }),
       );
     }
 
@@ -458,33 +464,45 @@ export async function GET(request: NextRequest) {
     for (const movement of movements) {
       movementTypeMap.set(
         movement.type,
-        (movementTypeMap.get(movement.type) || 0) + 1
+        (movementTypeMap.get(movement.type) || 0) + 1,
       );
     }
 
-    const totalQuantity = inventoryRows.reduce((sum, row) => sum + row.quantity, 0);
+    const totalQuantity = inventoryRows.reduce(
+      (sum, row) => sum + row.quantity,
+      0,
+    );
+
     const totalAvailable = inventoryRows.reduce(
       (sum, row) => sum + row.availableQuantity,
-      0
+      0,
     );
+
     const totalReserved = inventoryRows.reduce(
       (sum, row) => sum + row.reservedQuantity,
-      0
+      0,
     );
-    const stockValue = inventoryRows.reduce((sum, row) => sum + row.stockValue, 0);
+
+    const stockValue = inventoryRows.reduce(
+      (sum, row) => sum + row.stockValue,
+      0,
+    );
+
     const potentialSalesValue = inventoryRows.reduce(
       (sum, row) => sum + row.potentialSalesValue,
-      0
+      0,
     );
+
     const potentialProfitValue = inventoryRows.reduce(
       (sum, row) => sum + row.potentialProfitValue,
-      0
+      0,
     );
 
     const soldQuantity = orderItems.reduce(
       (sum, item) => sum + getNumber(item.quantity, 0),
-      0
+      0,
     );
+
     const revenue = orderItems.reduce((sum, item) => {
       if (item.total !== null && item.total !== undefined) {
         return sum + getNumber(item.total, 0);
@@ -495,13 +513,13 @@ export async function GET(request: NextRequest) {
 
     const profit = Array.from(productSalesMap.values()).reduce(
       (sum, item) => sum + item.profit,
-      0
+      0,
     );
 
     const lowStockItems = inventoryRows
       .filter(
         (row) =>
-          row.availableQuantity > 0 && row.availableQuantity <= row.lowStockAlert
+          row.availableQuantity > 0 && row.availableQuantity <= row.lowStockAlert,
       )
       .sort((a, b) => a.availableQuantity - b.availableQuantity)
       .slice(0, 20);
@@ -550,7 +568,8 @@ export async function GET(request: NextRequest) {
       period,
       totalProducts: products.length,
       totalInventoryRows: inventoryRows.length,
-      totalVariants: inventoryRows.filter((row) => row.itemType === "VARIANT").length,
+      totalVariants: inventoryRows.filter((row) => row.itemType === "VARIANT")
+        .length,
 
       totalQuantity,
       totalAvailable,
@@ -564,8 +583,9 @@ export async function GET(request: NextRequest) {
 
       lowStockCount: inventoryRows.filter(
         (row) =>
-          row.availableQuantity > 0 && row.availableQuantity <= row.lowStockAlert
+          row.availableQuantity > 0 && row.availableQuantity <= row.lowStockAlert,
       ).length,
+
       outOfStockCount: inventoryRows.filter((row) => row.availableQuantity <= 0)
         .length,
 
@@ -582,7 +602,7 @@ export async function GET(request: NextRequest) {
       movementDecrease: Math.abs(
         movements
           .filter((movement) => movement.quantityChange < 0)
-          .reduce((sum, movement) => sum + movement.quantityChange, 0)
+          .reduce((sum, movement) => sum + movement.quantityChange, 0),
       ),
     };
 
@@ -612,7 +632,7 @@ export async function GET(request: NextRequest) {
             ? error.message
             : "حدث خطأ أثناء تحميل تقارير المخزون",
       },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
