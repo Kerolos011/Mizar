@@ -1095,7 +1095,7 @@ async function updateTemplateConfigSettingsFallback(storeId: string, existingSto
 
     await prisma.store.update({
       where: { id: storeId },
-      data: { templateConfig: nextTemplateConfig },
+      data: { templateConfig: nextTemplateConfig as any },
     });
   } catch (error) {
     console.warn("Could not mirror dashboard settings into templateConfig:", error);
