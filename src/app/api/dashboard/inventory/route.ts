@@ -30,10 +30,21 @@ function toInt(value: unknown, fallback = 0) {
 }
 
 function getProductStatus(value: unknown): ProductStatus {
-  if (value === ProductStatus.DRAFT || value === "DRAFT") return ProductStatus.DRAFT;
-  if (value === ProductStatus.ACTIVE || value === "ACTIVE") return ProductStatus.ACTIVE;
-  if (value === ProductStatus.HIDDEN || value === "HIDDEN") return ProductStatus.HIDDEN;
-  if (value === ProductStatus.ARCHIVED || value === "ARCHIVED") return ProductStatus.ARCHIVED;
+  if (value === ProductStatus.DRAFT || value === "DRAFT") {
+    return ProductStatus.DRAFT;
+  }
+
+  if (value === ProductStatus.ACTIVE || value === "ACTIVE") {
+    return ProductStatus.ACTIVE;
+  }
+
+  if (value === ProductStatus.HIDDEN || value === "HIDDEN") {
+    return ProductStatus.HIDDEN;
+  }
+
+  if (value === ProductStatus.ARCHIVED || value === "ARCHIVED") {
+    return ProductStatus.ARCHIVED;
+  }
 
   return ProductStatus.ACTIVE;
 }
@@ -72,7 +83,7 @@ function getVariantImage(product: any, variant: any) {
 
 async function getCurrentMerchantStore(
   request: NextRequest,
-  storeIdFromQuery?: string | null
+  storeIdFromQuery?: string | null,
 ) {
   const session = await getSessionFromRequest(request);
 
@@ -86,7 +97,10 @@ async function getCurrentMerchantStore(
     };
   }
 
-  if (session.role !== UserRole.MERCHANT && session.role !== UserRole.SUPER_ADMIN) {
+  if (
+    session.role !== UserRole.MERCHANT &&
+    session.role !== UserRole.SUPER_ADMIN
+  ) {
     return {
       ok: false,
       status: 403,
@@ -153,7 +167,7 @@ export async function GET(request: NextRequest) {
               ? "/merchant/login?next=/dashboard/inventory"
               : "/merchant/welcome",
         },
-        { status: ownership.status }
+        { status: ownership.status },
       );
     }
 
@@ -185,7 +199,7 @@ export async function GET(request: NextRequest) {
       },
     });
 
-    const rows = products.flatMap((product) => {
+    const rows = products.flatMap((product): any[] => {
       const productImage = getCoverImage(product);
 
       if (product.productVariants.length > 0) {
@@ -319,7 +333,8 @@ export async function GET(request: NextRequest) {
         stockFilter === "out"
           ? row.availableQuantity <= 0
           : stockFilter === "low"
-            ? row.availableQuantity > 0 && row.availableQuantity <= row.lowStockAlert
+            ? row.availableQuantity > 0 &&
+              row.availableQuantity <= row.lowStockAlert
             : stockFilter === "available"
               ? row.availableQuantity > 0
               : true;
@@ -337,11 +352,16 @@ export async function GET(request: NextRequest) {
       totalReserved: rows.reduce((sum, row) => sum + row.reservedQuantity, 0),
       totalAvailable: rows.reduce((sum, row) => sum + row.availableQuantity, 0),
       lowStockCount: rows.filter(
-        (row) => row.availableQuantity > 0 && row.availableQuantity <= row.lowStockAlert
+        (row) =>
+          row.availableQuantity > 0 &&
+          row.availableQuantity <= row.lowStockAlert,
       ).length,
       outOfStockCount: rows.filter((row) => row.availableQuantity <= 0).length,
       stockValue: rows.reduce((sum, row) => sum + row.stockValue, 0),
-      potentialSalesValue: rows.reduce((sum, row) => sum + row.potentialSalesValue, 0),
+      potentialSalesValue: rows.reduce(
+        (sum, row) => sum + row.potentialSalesValue,
+        0,
+      ),
     };
 
     return NextResponse.json({
@@ -359,7 +379,7 @@ export async function GET(request: NextRequest) {
         success: false,
         message: "حدث خطأ أثناء تحميل المخزون",
       },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
@@ -378,7 +398,7 @@ export async function PATCH(request: NextRequest) {
           success: false,
           message: "معرّف عنصر المخزون مطلوب",
         },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -388,7 +408,7 @@ export async function PATCH(request: NextRequest) {
           success: false,
           message: "نوع عنصر المخزون غير صحيح",
         },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -400,7 +420,7 @@ export async function PATCH(request: NextRequest) {
           success: false,
           message: ownership.message,
         },
-        { status: ownership.status }
+        { status: ownership.status },
       );
     }
 
@@ -426,7 +446,7 @@ export async function PATCH(request: NextRequest) {
             success: false,
             message: "هذا المتغير غير موجود أو لا تملك صلاحية تعديله",
           },
-          { status: 404 }
+          { status: 404 },
         );
       }
 
@@ -444,7 +464,7 @@ export async function PATCH(request: NextRequest) {
               success: false,
               message: "الكمية لا يمكن أن تكون أقل من صفر",
             },
-            { status: 400 }
+            { status: 400 },
           );
         }
 
@@ -452,7 +472,10 @@ export async function PATCH(request: NextRequest) {
         quantityChanged = quantityAfter !== quantityBefore;
 
         data.quantity = quantity;
-        data.availableQuantity = Math.max(0, quantity - Number(variant.reservedQuantity || 0));
+        data.availableQuantity = Math.max(
+          0,
+          quantity - Number(variant.reservedQuantity || 0),
+        );
       }
 
       if (hasOwn(body, "lowStockAlert")) {
@@ -481,7 +504,7 @@ export async function PATCH(request: NextRequest) {
             success: false,
             message: "لا توجد بيانات للتحديث",
           },
-          { status: 400 }
+          { status: 400 },
         );
       }
 
@@ -525,15 +548,17 @@ export async function PATCH(request: NextRequest) {
 
         const totalQuantity = variants.reduce(
           (sum, item) => sum + Number(item.quantity || 0),
-          0
+          0,
         );
+
         const totalReserved = variants.reduce(
           (sum, item) => sum + Number(item.reservedQuantity || 0),
-          0
+          0,
         );
+
         const totalAvailable = variants.reduce(
           (sum, item) => sum + Number(item.availableQuantity || 0),
-          0
+          0,
         );
 
         await tx.product.update({
@@ -579,7 +604,7 @@ export async function PATCH(request: NextRequest) {
           success: false,
           message: "هذا المنتج غير موجود أو لا تملك صلاحية تعديله",
         },
-        { status: 404 }
+        { status: 404 },
       );
     }
 
@@ -597,7 +622,7 @@ export async function PATCH(request: NextRequest) {
             success: false,
             message: "الكمية لا يمكن أن تكون أقل من صفر",
           },
-          { status: 400 }
+          { status: 400 },
         );
       }
 
@@ -605,7 +630,10 @@ export async function PATCH(request: NextRequest) {
       quantityChanged = quantityAfter !== quantityBefore;
 
       data.stock = quantity;
-      data.availableStock = Math.max(0, quantity - Number(product.reservedStock || 0));
+      data.availableStock = Math.max(
+        0,
+        quantity - Number(product.reservedStock || 0),
+      );
     }
 
     if (hasOwn(body, "lowStockAlert")) {
@@ -622,7 +650,7 @@ export async function PATCH(request: NextRequest) {
           success: false,
           message: "لا توجد بيانات للتحديث",
         },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -674,7 +702,7 @@ export async function PATCH(request: NextRequest) {
             ? error.message
             : "حدث خطأ أثناء تحديث المخزون",
       },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
