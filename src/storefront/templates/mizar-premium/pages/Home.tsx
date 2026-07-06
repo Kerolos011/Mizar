@@ -296,8 +296,8 @@ export function Home(props: any) {
   const cover = firstText(heroRaw.imageUrl, heroRaw.url, getCoverImage(store, content));
   const selectedCategories = Array.isArray(homepage.featuredCategoryIds)
     ? homepage.featuredCategoryIds
-    : Array.isArray(homepage.featuredCategories)
-      ? homepage.featuredCategories
+    : Array.isArray((homepage as any).featuredCategories)
+      ? (homepage as any).featuredCategories
       : [];
   const homepageServices = Array.isArray(homepage.services) ? homepage.services : [];
 

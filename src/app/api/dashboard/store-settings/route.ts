@@ -1358,7 +1358,7 @@ export async function PATCH(request: NextRequest) {
             where: {
               id: existingStore.id,
             },
-            data: storeData,
+            data: storeData as any,
           });
         }
 
@@ -1457,8 +1457,8 @@ export async function PATCH(request: NextRequest) {
                 storeId: existingStore.id,
                 type: item.type,
                 isEnabled: item.isEnabled,
-                config: item.config ?? null,
-              })),
+                config: item.config === null ? undefined : (item.config as any),
+              })) as any,
             });
           }
         }

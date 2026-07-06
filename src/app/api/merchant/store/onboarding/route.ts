@@ -435,8 +435,8 @@ export async function POST(request: NextRequest) {
 
         theme: setup.theme,
         template: setup.template,
-        templateConfig: setup.templateConfig,
-        productSchema: setup.productSchema,
+        templateConfig: setup.templateConfig as any,
+        productSchema: setup.productSchema as any,
 
         primaryColor: setup.primaryColor,
         accentColor: setup.accentColor,
@@ -450,7 +450,7 @@ export async function POST(request: NextRequest) {
       const store = existingStore
         ? await tx.store.update({
             where: { id: existingStore.id },
-            data: storeData,
+            data: storeData as any,
             select: {
               id: true,
               name: true,
@@ -464,7 +464,7 @@ export async function POST(request: NextRequest) {
             data: {
               ...storeData,
               ownerId: user.id,
-            },
+            } as any,
             select: {
               id: true,
               name: true,

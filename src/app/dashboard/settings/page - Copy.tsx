@@ -1370,7 +1370,7 @@ export default function DashboardSettingsPage() {
           <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-1">
             <button
               type="button"
-              onClick={() => document.getElementById("settings-form")?.requestSubmit()}
+              onClick={() => (document.getElementById("settings-form") as HTMLFormElement | null)?.requestSubmit()}
               disabled={saving}
               className="settings-action primary disabled:cursor-not-allowed disabled:opacity-60"
             >

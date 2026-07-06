@@ -16,7 +16,7 @@ import { theme } from "../theme";
 
 export function ProductDetails(props: TemplatePageProps) {
   const { store, products, locale, text } = props;
-  const product = products[0];
+  const product = products[0] as any;
   const related = products.filter((item) => item.id !== product?.id).slice(0, 4);
   const imageUrl = product ? getTemplateProductImage(product) : "";
   const currency = product?.currency || store?.currency || "EGP";

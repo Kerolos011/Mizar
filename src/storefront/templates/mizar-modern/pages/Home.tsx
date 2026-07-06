@@ -23,7 +23,7 @@ export function Home(props: TemplatePageProps) {
   const cats = safeCategoryList(products, categories).slice(0, 8);
   const name = getStoreName(store);
   const coverUrl = resolveMediaUrl(hero.imageUrl || store?.coverUrl || store?.bannerUrl || "");
-  const about = content?.aboutSection;
+  const about = content?.aboutSection as any;
   const highlights = about?.highlights?.length ? about.highlights.slice(0, 4) : [
     t(locale, "منتجات مختارة بعناية", "Carefully selected products"),
     t(locale, "تجربة شراء سهلة", "Easy shopping experience"),
@@ -42,7 +42,7 @@ export function Home(props: TemplatePageProps) {
             <h1 className={styles.display}>{hero.title || name}</h1>
             <p className={styles.lead}>{hero.description || store?.description || t(locale, "تسوق منتجاتك المفضلة بسهولة من متجر مصمم لتجربة شراء سريعة وواضحة.", "Shop your favorite products easily from a store designed for a smooth shopping experience.")}</p>
             <div className={styles.heroActions}>
-              <Link href={hero.primaryButtonHref || buildStoreHref(store, "products")} className={styles.primaryButton}>{hero.primaryButtonText || text.common.shopNow}</Link>
+              <Link href={hero.primaryButtonHref || buildStoreHref(store, "products")} className={styles.primaryButton}>{hero.primaryButtonText || (text.common as any).shopNow || text.home.heroPrimary}</Link>
               <Link href={hero.secondaryButtonHref || buildStoreHref(store, "about")} className={styles.secondaryButton}>{hero.secondaryButtonText || text.nav.about}</Link>
             </div>
             <div className={styles.serviceRow}>
@@ -106,7 +106,7 @@ export function Home(props: TemplatePageProps) {
             <Link href={buildStoreHref(store, "about")} className={styles.primaryButton}>{text.nav.about}</Link>
           </div>
           <div className={styles.benefitsGrid}>
-            {highlights.map((item) => <div className={styles.benefitItem} key={item}>✓ <span>{item}</span></div>)}
+            {highlights.map((item: string) => <div className={styles.benefitItem} key={item}>✓ <span>{item}</span></div>)}
           </div>
         </div>
       </section>

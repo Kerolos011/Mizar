@@ -63,6 +63,7 @@ export type StorefrontContent = {
     subtitle?: string | null;
     description?: string | null;
     imageUrl?: string | null;
+    highlights?: string[] | null;
   } | null;
   footerSettings?: Record<string, unknown> | null;
   navigation?: Array<{ label?: string | null; href?: string | null }> | null;
@@ -97,6 +98,7 @@ export type StorefrontProduct = {
   title?: string | null;
   description?: string | null;
   shortDescription?: string | null;
+  fullDescription?: string | null;
   category?: string | null;
   price?: number | string | null;
   discountPrice?: number | string | null;
@@ -110,6 +112,7 @@ export type StorefrontProduct = {
   variants?: StorefrontVariant[] | null;
   stock?: number | string | null;
   availableStock?: number | string | null;
+  stockLabel?: string | null;
   status?: string | null;
   isFeatured?: boolean | null;
   ratingAverage?: number | string | null;

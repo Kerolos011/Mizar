@@ -150,7 +150,7 @@ function getActiveTemplateConfig(store: any) {
 }
 
 function buildDefaultStorefrontContent(store: any) {
-  const templateConfig = getActiveTemplateConfig(store);
+  const templateConfig: any = getActiveTemplateConfig(store);
 
   return {
     templateKey: templateConfig.templateKey,
@@ -1246,7 +1246,7 @@ export async function GET(request: NextRequest, context: RouteContext) {
       );
     }
 
-    let content = buildDefaultStorefrontContent(store);
+    let content: any = buildDefaultStorefrontContent(store);
     const templateKey = normalizeTemplateKey(
       content.templateKey || store.template,
     );
@@ -1297,6 +1297,7 @@ export async function GET(request: NextRequest, context: RouteContext) {
         showLatestProducts: Boolean(homepageSettings.enableNewArrivals),
         showCategories: Boolean(homepageSettings.enableFeaturedCategories),
         showOffers: Boolean(homepageSettings.enableOffers),
+        showAbout: true,
         showReviews: Boolean(homepageSettings.enableReviews),
         showBrands: Boolean(homepageSettings.enableBrands),
         showNewsletter: Boolean(homepageSettings.enableNewsletter),
@@ -1386,7 +1387,7 @@ export async function GET(request: NextRequest, context: RouteContext) {
       coverUrl: store.coverUrl,
       faviconUrl: store.faviconUrl,
       bannerUrl: store.bannerUrl,
-      currency: store.currency,
+      currency: (store as any).currency || (productSettingsSource as any)?.currency || "EGP",
       defaultLanguage: store.defaultLanguage,
       template: templateKey,
       templateKey,

@@ -688,7 +688,7 @@ function normalizeProductMedia(product: Product): ProductMedia[] {
     .filter((item) => item?.url)
     .map((item, index) => ({
       id: item.id,
-      type: item.type === "VIDEO" ? "VIDEO" : "IMAGE",
+      type: (item.type === "VIDEO" ? "VIDEO" : "IMAGE") as ProductMediaType,
       url: item.url,
       sortOrder: item.sortOrder ?? index,
     }))
@@ -699,7 +699,7 @@ function normalizeProductMedia(product: Product): ProductMedia[] {
   if (product.imageUrl) {
     return [
       {
-        type: "IMAGE",
+        type: "IMAGE" as ProductMediaType,
         url: product.imageUrl,
         sortOrder: 0,
       },
@@ -1690,7 +1690,7 @@ export default function DashboardProductsPage() {
       const normalizedMedia = media
         .filter((item) => item.url)
         .map((item, index) => ({
-          type: item.type === "VIDEO" ? "VIDEO" : "IMAGE",
+          type: (item.type === "VIDEO" ? "VIDEO" : "IMAGE") as ProductMediaType,
           url: item.url,
           sortOrder: index,
         }));

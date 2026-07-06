@@ -11,7 +11,7 @@ function t(locale: string, ar: string, en: string) { return locale === "ar" ? ar
 export function About(props: TemplatePageProps) {
   const { store, content, products, categories, locale, text } = props;
   const hero = getActiveHero(content, store);
-  const about = content?.aboutSection;
+  const about = content?.aboutSection as any;
   const imageUrl = resolveMediaUrl(about?.imageUrl || hero.imageUrl || store?.coverUrl || "");
   const highlights = about?.highlights?.length ? about.highlights : [
     t(locale, "منتجات يتم اختيارها بعناية", "Carefully selected products"),
@@ -34,7 +34,7 @@ export function About(props: TemplatePageProps) {
               <div><strong>{products.length}</strong><span>{text.home.productCount}</span></div>
               <div><strong>{categories.length || 1}</strong><span>{text.home.categoryCount}</span></div>
             </div>
-            <div className={styles.highlightList}>{highlights.map((item) => <div className={styles.highlight} key={item}>✓ {item}</div>)}</div>
+            <div className={styles.highlightList}>{highlights.map((item: string) => <div className={styles.highlight} key={item}>✓ {item}</div>)}</div>
           </div>
         </div>
       </section>

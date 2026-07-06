@@ -31,7 +31,7 @@ export function getTemplateKeyFromData(input: {
   return normalizeTemplateKey(
     input.templateKey ||
       input.content?.templateKey ||
-      input.store?.templateConfig?.templateKey ||
+      (typeof input.store?.templateConfig === "object" && input.store?.templateConfig ? input.store.templateConfig.templateKey : undefined) ||
       input.store?.template ||
       "MIZAR_MODERN"
   );

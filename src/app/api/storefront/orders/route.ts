@@ -220,7 +220,7 @@ export async function POST(request: NextRequest) {
         price,
         productName: product.name,
         variantTitle: variant ? normalizeOptionTitle(variant) : null,
-        sku: variant?.sku || product.sku || null,
+        sku: variant?.sku || null,
         total,
         originalPrice,
         finalPrice: price,

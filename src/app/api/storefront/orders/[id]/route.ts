@@ -12,10 +12,10 @@ async function enrichOrderItems(order: any) {
 
   const productIds = Array.from(
     new Set(items.map((item: any) => cleanText(item.productId)).filter(Boolean)),
-  );
+  ) as string[];
   const variantIds = Array.from(
     new Set(items.map((item: any) => cleanText(item.variantId)).filter(Boolean)),
-  );
+  ) as string[];
 
   const [products, variants] = await Promise.all([
     productIds.length
@@ -30,7 +30,6 @@ async function enrichOrderItems(order: any) {
             name: true,
             slug: true,
             imageUrl: true,
-            sku: true,
           },
         })
       : Promise.resolve([]),
@@ -45,7 +44,6 @@ async function enrichOrderItems(order: any) {
             id: true,
             productId: true,
             title: true,
-            sku: true,
           },
         })
       : Promise.resolve([]),
